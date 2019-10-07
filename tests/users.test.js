@@ -51,5 +51,25 @@ describe('/users', () => {
           done();
         });
     });
+    it('API validates password', (done) => {
+      chai.request(server)
+        .post('/users')
+        .send({
+          forename: 'Bobby',
+          surname: 'Davro',
+          email: 'bobbyd69@bobby.com',
+          password: 'bobby',
+        })
+        .end((error, res) => {
+          console.log(res.body);
+          expect(res.body.errors.password).to.equal('Password must be at least 8 characters long');
+          expect(res.status).to.equal(400);
+
+          User.countDocuments({}, (error, count) => {
+            expect(count).to.equal(0);
+          });
+          done();
+        });
+    })
   });
 });
