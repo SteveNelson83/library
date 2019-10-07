@@ -1,12 +1,25 @@
 /* eslint-disable no-console */
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
+const isEmail = require('isemail');
 
 const userSchema = new mongoose.Schema({
-  forename: String,
-  surname: String,
-  email: String,
-  password: String,
+  forename: {
+    type: String,
+    required: true,
+  },
+  surname: {
+    type: String,
+    required: true,
+  },
+  email: {
+    type: String,
+    validate: [isEmail.validate, 'Invalid email address'],
+  },
+  password: {
+    type: String,
+    required: true,
+  },
 });
 
 userSchema.pre('save', function encryptPassword(next) {
@@ -26,8 +39,7 @@ userSchema.pre('save', function encryptPassword(next) {
 
 // eslint-disable-next-line func-names
 userSchema.methods.sanitise = function () {
-  console.log(this);
-  const user = this;
+  const user = this.toJSON();
   const noPassword = ({ password, ...rest }) => rest;
   const editedUser = noPassword(user);
   return editedUser;

@@ -23,8 +23,6 @@ describe('/users', () => {
           expect(res.status).to.equal(201);
 
           User.findById(res.body._id, (err, user) => {
-            // eslint-disable-next-line no-console
-            console.log(res.body);
             expect(err).to.equal(null);
             expect(user.forename).to.equal('Bobby');
             expect(user.surname).to.equal('Davro');
@@ -32,6 +30,25 @@ describe('/users', () => {
             expect(res.body).not.to.have.property('password');
             done();
           });
+        });
+    });
+    it('API validates email address', (done) => {
+      chai.request(server)
+        .post('/users')
+        .send({
+          forename: 'Bobby',
+          surname: 'Davro',
+          email: 'bobbyd',
+          password: 'iambobby69',
+        })
+        .end((error, res) => {
+          expect(res.body.errors.email).to.equal('Invalid email address');
+          expect(res.status).to.equal(400);
+
+          User.countDocuments({}, (error, count) => {
+            expect(count).to.equal(0);
+          });
+          done();
         });
     });
   });
